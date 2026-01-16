@@ -37,6 +37,8 @@ Route::prefix('v1')->group(function () {
         Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
         Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('documentos/{documento}/validar', [DocumentoController::class, 'validar']);
+        Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
+        Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);
     });
 });
