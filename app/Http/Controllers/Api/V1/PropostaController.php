@@ -75,6 +75,7 @@ class PropostaController extends Controller
 
         return response()->json([
             'data' => $proposta->load(['documentos', 'pendencias']),
+            'data' => $proposta,
         ]);
     }
 
