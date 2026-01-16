@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Pendencia;
+use App\Models\Proposta;
+use App\Policies\PendenciaPolicy;
+use App\Policies\PropostaPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Pendencia::class, PendenciaPolicy::class);
+        Gate::policy(Proposta::class, PropostaPolicy::class);
     }
 }
