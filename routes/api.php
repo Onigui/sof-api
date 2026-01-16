@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\DocumentoController;
 use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\PendenciaController;
 use App\Http\Controllers\Api\V1\PropostaController;
+use App\Http\Controllers\Api\V1\RelatorioController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -19,6 +20,10 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('fila', [FilaController::class, 'index']);
+        Route::get('relatorios/aprovadas', [RelatorioController::class, 'aprovadas']);
+        Route::get('relatorios/aprovadas/export', [RelatorioController::class, 'aprovadasExport']);
+        Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
+        Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
         Route::get('propostas', [PropostaController::class, 'index']);
         Route::post('propostas', [PropostaController::class, 'store']);
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
