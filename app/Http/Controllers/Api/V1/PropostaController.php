@@ -32,6 +32,12 @@ class PropostaController extends Controller
             $builder->where('regiao_id', $regiaoId);
         });
 
+        $query->when($request->boolean('pendencia'), function ($builder) {
+            $builder->whereHas('pendencias', function ($pendencias) {
+                $pendencias->where('status', \App\Models\Pendencia::STATUS_ABERTA);
+            });
+        });
+
         if ($request->filled('data_de')) {
             $dataDe = Carbon::parse($request->input('data_de'))->startOfDay();
             $query->where('created_at', '>=', $dataDe);

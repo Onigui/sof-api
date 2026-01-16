@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\FilaController;
+use App\Http\Controllers\Api\V1\PendenciaController;
 use App\Http\Controllers\Api\V1\PropostaController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,10 +17,14 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('fila', [FilaController::class, 'index']);
         Route::get('propostas', [PropostaController::class, 'index']);
         Route::post('propostas', [PropostaController::class, 'store']);
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
         Route::patch('propostas/{proposta}', [PropostaController::class, 'update']);
         Route::post('propostas/{proposta}/enviar', [PropostaController::class, 'enviar']);
+        Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
+        Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
+        Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);
     });
 });

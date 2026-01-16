@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Proposta extends Model
 {
@@ -94,5 +95,10 @@ class Proposta extends Model
     public function produto(): BelongsTo
     {
         return $this->belongsTo(Produto::class);
+    }
+
+    public function pendencias(): HasMany
+    {
+        return $this->hasMany(Pendencia::class);
     }
 }
