@@ -5,11 +5,13 @@ namespace Tests\Feature;
 use App\Models\Empresa;
 use App\Models\RelatorioRun;
 use App\Models\User;
+use App\Notifications\RelatoriosGeradosNotification;
 use App\Services\RelatorioFechamentoService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Facades\Notification;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 
@@ -109,5 +111,33 @@ class RelatorioFechamentoTest extends TestCase
             'tipo' => RelatorioRun::TIPO_INTEGRADAS,
             'status' => RelatorioRun::STATUS_GERADO,
         ]);
+    }
+
+    public function test_service_dispara_notificacao_sem_duplicar(): void
+    {
+        Excel::fake();
+        Notification::fake();
+
+        $empresa = Empresa::factory()->create();
+        $gestao = User::factory()->create([
+            'empresa_id' => $empresa->id,
+            'role' => User::ROLE_GESTAO,
+        ]);
+        $analista = User::factory()->create([
+            'empresa_id' => $empresa->id,
+            'role' => User::ROLE_ANALISTA,
+        ]);
+        $operador = User::factory()->create([
+            'empresa_id' => $empresa->id,
+            'role' => User::ROLE_OPERADOR,
+        ]);
+
+        $service = app(RelatorioFechamentoService::class);
+        $service->gerar('2025-01-10');
+        $service->gerar('2025-01-10');
+
+        Notification::assertSentToTimes($gestao, RelatoriosGeradosNotification::class, 1);
+        Notification::assertSentToTimes($analista, RelatoriosGeradosNotification::class, 1);
+        Notification::assertNotSentTo($operador, RelatoriosGeradosNotification::class);
     }
 }

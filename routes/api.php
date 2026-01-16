@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DocumentoController;
 use App\Http\Controllers\Api\V1\FilaController;
+use App\Http\Controllers\Api\V1\NotificacaoController;
 use App\Http\Controllers\Api\V1\PendenciaController;
 use App\Http\Controllers\Api\V1\PropostaController;
 use App\Http\Controllers\Api\V1\RelatorioFechamentoController;
@@ -21,10 +22,15 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('fila', [FilaController::class, 'index']);
+        Route::get('notificacoes', [NotificacaoController::class, 'index']);
         Route::get('relatorios/aprovadas', [RelatorioController::class, 'aprovadas']);
         Route::get('relatorios/aprovadas/export', [RelatorioController::class, 'aprovadasExport']);
         Route::get('relatorios/fechamento', [RelatorioFechamentoController::class, 'index']);
         Route::get('relatorios/fechamento/{relatorioRun}/download', [RelatorioFechamentoController::class, 'download']);
+        Route::post('relatorios/fechamento/{data_ref}/reenviar', [RelatorioFechamentoController::class, 'reenviar']);
+        Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
+        Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
+        Route::post('notificacoes/{notification}/ler', [NotificacaoController::class, 'marcarLida']);
         Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
         Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
         Route::get('propostas', [PropostaController::class, 'index']);

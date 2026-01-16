@@ -6,6 +6,8 @@ use App\Exports\AprovadasExport;
 use App\Exports\IntegradasExport;
 use App\Models\Empresa;
 use App\Models\RelatorioRun;
+use App\Models\User;
+use App\Notifications\RelatoriosGeradosNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
@@ -23,10 +25,38 @@ class RelatorioFechamentoService
         });
     }
 
+    public function reenviarNotificacoes(int $empresaId, string $dataRef): bool
+    {
+        $data = Carbon::parse($dataRef)->toDateString();
+
+        $aprovadas = RelatorioRun::query()
+            ->where('empresa_id', $empresaId)
+            ->whereDate('data_ref', $data)
+            ->where('tipo', RelatorioRun::TIPO_APROVADAS)
+            ->where('status', RelatorioRun::STATUS_GERADO)
+            ->first();
+
+        $integradas = RelatorioRun::query()
+            ->where('empresa_id', $empresaId)
+            ->whereDate('data_ref', $data)
+            ->where('tipo', RelatorioRun::TIPO_INTEGRADAS)
+            ->where('status', RelatorioRun::STATUS_GERADO)
+            ->first();
+
+        if (!$aprovadas || !$integradas) {
+            return false;
+        }
+
+        $this->notificarUsuarios($empresaId, $data, $aprovadas->id, $integradas->id, true);
+
+        return true;
+    }
+
     private function gerarParaEmpresa(int $empresaId, string $data, ?int $createdBy): void
     {
         $basePath = "empresas/{$empresaId}/relatorios/{$data}";
 
+        $aprovadas = $this->gerarTipo(
         $this->gerarTipo(
             $empresaId,
             $data,
@@ -36,6 +66,7 @@ class RelatorioFechamentoService
             $createdBy
         );
 
+        $integradas = $this->gerarTipo(
         $this->gerarTipo(
             $empresaId,
             $data,
@@ -44,6 +75,11 @@ class RelatorioFechamentoService
             "{$basePath}/integradas.xlsx",
             $createdBy
         );
+
+        if ($aprovadas?->status === RelatorioRun::STATUS_GERADO
+            && $integradas?->status === RelatorioRun::STATUS_GERADO) {
+            $this->notificarUsuarios($empresaId, $data, $aprovadas->id, $integradas->id, false);
+        }
     }
 
     private function gerarTipo(
@@ -53,6 +89,19 @@ class RelatorioFechamentoService
         object $export,
         string $path,
         ?int $createdBy
+    ): ?RelatorioRun {
+        try {
+            Excel::store($export, $path);
+
+            return $this->registrarResultado(
+                $empresaId,
+                $data,
+                $tipo,
+                $path,
+                RelatorioRun::STATUS_GERADO,
+                null,
+                $createdBy
+            );
     ): void {
         try {
             Excel::store($export, $path);
@@ -66,6 +115,7 @@ class RelatorioFechamentoService
                 'erro' => $exception->getMessage(),
             ]);
 
+            return $this->registrarResultado(
             $this->registrarResultado(
                 $empresaId,
                 $data,
@@ -86,6 +136,8 @@ class RelatorioFechamentoService
         string $status,
         ?string $erro,
         ?int $createdBy
+    ): RelatorioRun {
+        return RelatorioRun::updateOrCreate(
     ): void {
         RelatorioRun::updateOrCreate(
             [
@@ -102,5 +154,37 @@ class RelatorioFechamentoService
                 'created_by' => $createdBy,
             ]
         );
+    }
+
+    private function notificarUsuarios(
+        int $empresaId,
+        string $data,
+        int $aprovadasId,
+        int $integradasId,
+        bool $forcarReenvio
+    ): void {
+        $usuarios = User::query()
+            ->where('empresa_id', $empresaId)
+            ->whereIn('role', [User::ROLE_GESTAO, User::ROLE_ANALISTA])
+            ->get();
+
+        foreach ($usuarios as $usuario) {
+            $jaEnviado = $usuario->notifications()
+                ->where('type', RelatoriosGeradosNotification::class)
+                ->where('data->empresa_id', $empresaId)
+                ->where('data->data_ref', $data)
+                ->exists();
+
+            if ($jaEnviado && !$forcarReenvio) {
+                continue;
+            }
+
+            $usuario->notify(new RelatoriosGeradosNotification(
+                $empresaId,
+                $data,
+                $aprovadasId,
+                $integradasId
+            ));
+        }
     }
 }
