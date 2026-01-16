@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Pendencia;
 use App\Models\Proposta;
 use App\Policies\PendenciaPolicy;
+use App\Models\Proposta;
 use App\Policies\PropostaPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
