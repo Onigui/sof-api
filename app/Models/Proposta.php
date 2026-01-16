@@ -101,4 +101,9 @@ class Proposta extends Model
     {
         return $this->hasMany(Pendencia::class);
     }
+
+    public function documentos(): HasMany
+    {
+        return $this->hasMany(Documento::class);
+    }
 }

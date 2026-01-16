@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DocumentoController;
 use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\PendenciaController;
 use App\Http\Controllers\Api\V1\PropostaController;
@@ -23,6 +24,11 @@ Route::prefix('v1')->group(function () {
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
         Route::patch('propostas/{proposta}', [PropostaController::class, 'update']);
         Route::post('propostas/{proposta}/enviar', [PropostaController::class, 'enviar']);
+        Route::get('propostas/{proposta}/documentos', [DocumentoController::class, 'index']);
+        Route::post('propostas/{proposta}/documentos', [DocumentoController::class, 'store']);
+        Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
+        Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
+        Route::patch('documentos/{documento}/validar', [DocumentoController::class, 'validar']);
         Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
         Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);

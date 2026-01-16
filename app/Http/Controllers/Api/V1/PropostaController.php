@@ -74,6 +74,7 @@ class PropostaController extends Controller
         $this->authorize('view', $proposta);
 
         return response()->json([
+            'data' => $proposta->load(['documentos', 'pendencias']),
             'data' => $proposta,
         ]);
     }

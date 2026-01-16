@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Documento;
+use App\Models\Pendencia;
+use App\Models\Proposta;
+use App\Policies\DocumentoPolicy;
+use App\Policies\PendenciaPolicy;
 use App\Models\Pendencia;
 use App\Models\Proposta;
 use App\Policies\PendenciaPolicy;
@@ -25,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Documento::class, DocumentoPolicy::class);
         Gate::policy(Pendencia::class, PendenciaPolicy::class);
         Gate::policy(Proposta::class, PropostaPolicy::class);
     }
