@@ -5,10 +5,13 @@ namespace App\Providers;
 use App\Models\Documento;
 use App\Models\Pendencia;
 use App\Models\Proposta;
+use App\Models\Regiao;
 use App\Models\RelatorioRun;
 use App\Policies\DocumentoPolicy;
 use App\Policies\PendenciaPolicy;
 use App\Policies\PropostaPolicy;
+use App\Policies\RegiaoPolicy;
+use App\Policies\RelatorioRunPolicy;
 use App\Policies\RelatorioRunPolicy;
 use App\Policies\DocumentoPolicy;
 use App\Policies\PendenciaPolicy;
@@ -38,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Documento::class, DocumentoPolicy::class);
         Gate::policy(Pendencia::class, PendenciaPolicy::class);
         Gate::policy(Proposta::class, PropostaPolicy::class);
+        Gate::policy(Regiao::class, RegiaoPolicy::class);
         Gate::policy(RelatorioRun::class, RelatorioRunPolicy::class);
     }
 }

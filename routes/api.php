@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\NotificacaoController;
 use App\Http\Controllers\Api\V1\PendenciaController;
 use App\Http\Controllers\Api\V1\PropostaController;
+use App\Http\Controllers\Api\V1\RegiaoNormalizacaoController;
 use App\Http\Controllers\Api\V1\RelatorioFechamentoController;
 use App\Http\Controllers\Api\V1\RelatorioController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,8 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('fila', [FilaController::class, 'index']);
         Route::get('notificacoes', [NotificacaoController::class, 'index']);
+        Route::get('regioes/pending-normalization', [RegiaoNormalizacaoController::class, 'pendingNormalization']);
+        Route::post('regioes/normalize', [RegiaoNormalizacaoController::class, 'normalize']);
         Route::get('relatorios/aprovadas', [RelatorioController::class, 'aprovadas']);
         Route::get('relatorios/aprovadas/export', [RelatorioController::class, 'aprovadasExport']);
         Route::get('relatorios/fechamento', [RelatorioFechamentoController::class, 'index']);
