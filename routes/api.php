@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\V1\BillingController;
 use App\Http\Controllers\Api\V1\DocumentoController;
 use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\IntegracaoController;
+use App\Http\Controllers\Api\V1\DocumentoController;
+use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\NotificacaoController;
 use App\Http\Controllers\Api\V1\PendenciaController;
 use App\Http\Controllers\Api\V1\PropostaController;
@@ -39,6 +41,8 @@ Route::prefix('v1')->group(function () {
         Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
         Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
         Route::post('notificacoes/{notification}/ler', [NotificacaoController::class, 'marcarLida']);
+        Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
+        Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
         Route::get('propostas', [PropostaController::class, 'index']);
         Route::post('propostas', [PropostaController::class, 'store']);
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
@@ -50,6 +54,8 @@ Route::prefix('v1')->group(function () {
         Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
         Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('documentos/{documento}/validar', [DocumentoController::class, 'validar']);
+        Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
+        Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);
     });
 });
