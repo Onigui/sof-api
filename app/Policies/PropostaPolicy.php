@@ -44,4 +44,21 @@ class PropostaPolicy extends BasePolicy
         return $user->id === $proposta->operador_id
             && $proposta->status === Proposta::STATUS_RASCUNHO;
     }
+
+    public function integrar(User $user, Proposta $proposta): bool
+    {
+        if (!$this->sameEmpresa($user, $proposta)) {
+            return false;
+        }
+
+        if (!in_array($user->role, [User::ROLE_ANALISTA, User::ROLE_GESTAO], true)) {
+            return false;
+        }
+
+        return !in_array($proposta->status, [
+            Proposta::STATUS_RECUSADA,
+            Proposta::STATUS_CANCELADA,
+            Proposta::STATUS_INTEGRADA,
+        ], true);
+    }
 }

@@ -7,29 +7,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Integracao extends Model
+class BillingEvent extends Model
 {
     use BelongsToEmpresa, HasFactory;
 
+    public const TIPO_INTEGRADA = 'INTEGRADA';
+
     protected $fillable = [
         'empresa_id',
+        'tipo_evento',
         'proposta_id',
-        'data_averbacao',
-        'contrato',
-        'repasse',
-        'tabela',
-        'veiculo',
-        'alienado',
-        'regiao_override',
-        'created_by',
+        'integracao_id',
+        'valor_centavos',
+        'gerado_em',
     ];
 
     protected function casts(): array
     {
         return [
-            'data_averbacao' => 'date',
-            'repasse' => 'decimal:2',
-            'alienado' => 'boolean',
+            'valor_centavos' => 'integer',
+            'gerado_em' => 'datetime',
         ];
     }
 
@@ -38,9 +35,8 @@ class Integracao extends Model
         return $this->belongsTo(Proposta::class);
     }
 
-    public function criadoPor(): BelongsTo
+    public function integracao(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(Integracao::class);
     }
 }
-

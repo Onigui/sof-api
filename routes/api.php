@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BillingController;
+use App\Http\Controllers\Api\V1\DocumentoController;
+use App\Http\Controllers\Api\V1\FilaController;
+use App\Http\Controllers\Api\V1\IntegracaoController;
 use App\Http\Controllers\Api\V1\DocumentoController;
 use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\NotificacaoController;
@@ -22,6 +26,9 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('billing/events', [BillingController::class, 'events']);
+        Route::patch('billing/settings', [BillingController::class, 'settings']);
+        Route::get('billing/summary', [BillingController::class, 'summary']);
         Route::get('fila', [FilaController::class, 'index']);
         Route::get('notificacoes', [NotificacaoController::class, 'index']);
         Route::get('regioes/pending-normalization', [RegiaoNormalizacaoController::class, 'pendingNormalization']);
@@ -41,6 +48,7 @@ Route::prefix('v1')->group(function () {
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
         Route::patch('propostas/{proposta}', [PropostaController::class, 'update']);
         Route::post('propostas/{proposta}/enviar', [PropostaController::class, 'enviar']);
+        Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar']);
         Route::get('propostas/{proposta}/documentos', [DocumentoController::class, 'index']);
         Route::post('propostas/{proposta}/documentos', [DocumentoController::class, 'store']);
         Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
