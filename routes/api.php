@@ -13,6 +13,9 @@ use App\Http\Controllers\Api\V1\PropostaController;
 use App\Http\Controllers\Api\V1\RegiaoNormalizacaoController;
 use App\Http\Controllers\Api\V1\RelatorioFechamentoController;
 use App\Http\Controllers\Api\V1\RelatorioController;
+use App\Http\Controllers\Api\V1\SubscriptionController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\EnsureSubscriptionActive;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -41,6 +44,8 @@ Route::prefix('v1')->group(function () {
         Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
         Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
         Route::post('notificacoes/{notification}/ler', [NotificacaoController::class, 'marcarLida']);
+        Route::get('subscription', [SubscriptionController::class, 'show']);
+        Route::patch('subscription', [SubscriptionController::class, 'update']);
         Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
         Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
         Route::get('propostas', [PropostaController::class, 'index']);
@@ -48,6 +53,8 @@ Route::prefix('v1')->group(function () {
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
         Route::patch('propostas/{proposta}', [PropostaController::class, 'update']);
         Route::post('propostas/{proposta}/enviar', [PropostaController::class, 'enviar']);
+        Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar'])
+            ->middleware(EnsureSubscriptionActive::class);
         Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar']);
         Route::get('propostas/{proposta}/documentos', [DocumentoController::class, 'index']);
         Route::post('propostas/{proposta}/documentos', [DocumentoController::class, 'store']);

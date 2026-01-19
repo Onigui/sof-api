@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\EmpresaSubscription;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,11 +52,25 @@ class AuthController extends Controller
 
     private function userPayload($user): array
     {
+        $subscription = EmpresaSubscription::firstOrCreate(
+            ['empresa_id' => $user->empresa_id],
+            [
+                'status' => EmpresaSubscription::STATUS_TRIAL,
+                'trial_ends_at' => Carbon::now()->addDays(14),
+                'grace_days' => 0,
+            ]
+        );
+
         return [
             'id' => $user->id,
             'name' => $user->name,
             'role' => $user->role,
             'empresa_id' => $user->empresa_id,
+            'subscription' => [
+                'status' => $subscription->status,
+                'trial_ends_at' => $subscription->trial_ends_at?->toDateTimeString(),
+                'grace_days' => $subscription->grace_days,
+            ],
         ];
     }
 }
