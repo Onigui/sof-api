@@ -7,6 +7,11 @@ use App\Http\Controllers\Api\V1\BillingWebhookController;
 use App\Http\Controllers\Api\V1\DocumentoController;
 use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\IntegracaoController;
+use App\Http\Controllers\Api\V1\DocumentoController;
+use App\Http\Controllers\Api\V1\FilaController;
+use App\Http\Controllers\Api\V1\IntegracaoController;
+use App\Http\Controllers\Api\V1\DocumentoController;
+use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\NotificacaoController;
 use App\Http\Controllers\Api\V1\PendenciaController;
 use App\Http\Controllers\Api\V1\PropostaController;
@@ -20,6 +25,9 @@ use App\Http\Middleware\EnsureSubscriptionActive;
 Route::prefix('v1')->group(function () {
     Route::post('billing/webhooks/{provider}', [BillingWebhookController::class, 'handle']);
 
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
 
@@ -50,6 +58,8 @@ Route::prefix('v1')->group(function () {
         Route::post('notificacoes/{notification}/ler', [NotificacaoController::class, 'marcarLida']);
         Route::get('subscription', [SubscriptionController::class, 'show']);
         Route::patch('subscription', [SubscriptionController::class, 'update']);
+        Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
+        Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
         Route::get('propostas', [PropostaController::class, 'index']);
         Route::post('propostas', [PropostaController::class, 'store']);
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
@@ -57,11 +67,14 @@ Route::prefix('v1')->group(function () {
         Route::post('propostas/{proposta}/enviar', [PropostaController::class, 'enviar']);
         Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar'])
             ->middleware(EnsureSubscriptionActive::class);
+        Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar']);
         Route::get('propostas/{proposta}/documentos', [DocumentoController::class, 'index']);
         Route::post('propostas/{proposta}/documentos', [DocumentoController::class, 'store']);
         Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
         Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('documentos/{documento}/validar', [DocumentoController::class, 'validar']);
+        Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
+        Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);
     });
 });
