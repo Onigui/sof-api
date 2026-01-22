@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BillingController;
+use App\Http\Controllers\Api\V1\BillingInvoiceController;
+use App\Http\Controllers\Api\V1\BillingWebhookController;
+use App\Http\Controllers\Api\V1\DocumentoController;
+use App\Http\Controllers\Api\V1\FilaController;
+use App\Http\Controllers\Api\V1\IntegracaoController;
 use App\Http\Controllers\Api\V1\DocumentoController;
 use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\IntegracaoController;
@@ -16,6 +21,10 @@ use App\Http\Controllers\Api\V1\RelatorioController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureSubscriptionActive;
+
+Route::prefix('v1')->group(function () {
+    Route::post('billing/webhooks/{provider}', [BillingWebhookController::class, 'handle']);
+
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -29,6 +38,9 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('billing/invoices', [BillingInvoiceController::class, 'show']);
+        Route::post('billing/invoices/{invoice}/checkout', [BillingInvoiceController::class, 'checkout']);
+        Route::post('billing/invoices/{invoice}/mark-paid', [BillingInvoiceController::class, 'markPaid']);
         Route::get('billing/events', [BillingController::class, 'events']);
         Route::patch('billing/settings', [BillingController::class, 'settings']);
         Route::get('billing/summary', [BillingController::class, 'summary']);
