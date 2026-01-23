@@ -7,6 +7,7 @@ use App\Models\BillingEvent;
 use App\Models\BillingSetting;
 use App\Models\Integracao;
 use App\Models\Proposta;
+use App\Services\Audit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +67,19 @@ class IntegracaoController extends Controller
 
             return $integracao;
         });
+
+        Audit::log(
+            'PROPOSTA_INTEGRADA',
+            Proposta::class,
+            (string) $proposta->id,
+            [
+                'integracao_id' => $integracao->id,
+                'data_averbacao' => $integracao->data_averbacao,
+                'contrato' => $integracao->contrato,
+            ],
+            $user,
+            $request
+        );
 
         return response()->json([
             'data' => $integracao->fresh(),

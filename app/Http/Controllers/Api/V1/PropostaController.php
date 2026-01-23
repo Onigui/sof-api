@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePropostaRequest;
 use App\Http\Requests\UpdatePropostaRequest;
 use App\Models\Proposta;
+use App\Services\Audit;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -64,6 +65,15 @@ class PropostaController extends Controller
             'prioridade' => Proposta::PRIORIDADE_NORMAL,
         ]));
 
+        Audit::log(
+            'PROPOSTA_CRIADA',
+            Proposta::class,
+            (string) $proposta->id,
+            [],
+            $user,
+            $request
+        );
+
         return response()->json([
             'data' => $proposta,
         ], 201);
@@ -83,6 +93,20 @@ class PropostaController extends Controller
     {
         $this->authorize('update', $proposta);
 
+        $validated = $request->validated();
+
+        $proposta->update($validated);
+
+        Audit::log(
+            'PROPOSTA_ATUALIZADA',
+            Proposta::class,
+            (string) $proposta->id,
+            [
+                'campos' => array_keys($validated),
+            ],
+            $request->user(),
+            $request
+        );
         $proposta->update($request->validated());
 
         return response()->json([
@@ -98,6 +122,15 @@ class PropostaController extends Controller
             'status' => Proposta::STATUS_ANALISE_PROMOTORA,
             'enviada_em' => now(),
         ]);
+
+        Audit::log(
+            'PROPOSTA_ENVIADA',
+            Proposta::class,
+            (string) $proposta->id,
+            [],
+            $request->user(),
+            $request
+        );
 
         return response()->json([
             'data' => $proposta,

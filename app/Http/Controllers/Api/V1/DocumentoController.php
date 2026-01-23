@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Documento;
 use App\Models\Proposta;
+use App\Services\Audit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +68,18 @@ class DocumentoController extends Controller
             ]);
         });
 
+        Audit::log(
+            'PROPOSTA_DOCUMENTO_ENVIADO',
+            Proposta::class,
+            (string) $proposta->id,
+            [
+                'documento_id' => $documento->id,
+                'tipo' => $documento->tipo,
+            ],
+            $user,
+            $request
+        );
+
         return response()->json([
             'data' => $documento,
         ], 201);
@@ -87,6 +100,21 @@ class DocumentoController extends Controller
                 ? $validated['motivo_invalidez']
                 : null,
         ]);
+
+        Audit::log(
+            'PROPOSTA_DOCUMENTO_VALIDADO',
+            Proposta::class,
+            (string) $documento->proposta_id,
+            [
+                'documento_id' => $documento->id,
+                'status' => $validated['status'],
+                'motivo_invalidez' => $validated['status'] === Documento::STATUS_INVALIDO
+                    ? $validated['motivo_invalidez']
+                    : null,
+            ],
+            $request->user(),
+            $request
+        );
 
         return response()->json([
             'data' => $documento,

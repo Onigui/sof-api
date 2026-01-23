@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pendencia;
 use App\Models\PendenciaItem;
 use App\Models\Proposta;
+use App\Services\Audit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -64,6 +65,19 @@ class PendenciaController extends Controller
             ]);
         }
 
+        Audit::log(
+            'PROPOSTA_PENDENCIA_CRIADA',
+            Proposta::class,
+            (string) $proposta->id,
+            [
+                'pendencia_id' => $pendencia->id,
+                'categoria' => $pendencia->categoria,
+                'itens_count' => count($validated['itens'] ?? []),
+            ],
+            $user,
+            $request
+        );
+
         return response()->json([
             'data' => $pendencia->load('itens'),
         ], 201);
@@ -80,6 +94,18 @@ class PendenciaController extends Controller
             'resolvida_por' => $user->id,
             'resolvida_em' => now(),
         ]);
+
+        Audit::log(
+            'PROPOSTA_PENDENCIA_RESOLVIDA',
+            Proposta::class,
+            (string) $pendencia->proposta_id,
+            [
+                'pendencia_id' => $pendencia->id,
+                'categoria' => $pendencia->categoria,
+            ],
+            $user,
+            $request
+        );
 
         return response()->json([
             'data' => $pendencia,

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\AuditoriaController;
 use App\Http\Controllers\Api\V1\BillingController;
 use App\Http\Controllers\Api\V1\BillingCycleController;
 use App\Http\Controllers\Api\V1\BillingInvoiceController;
@@ -50,6 +51,8 @@ Route::prefix('v1')->group(function () {
         Route::get('billing/events', [BillingController::class, 'events']);
         Route::patch('billing/settings', [BillingController::class, 'settings']);
         Route::get('billing/summary', [BillingController::class, 'summary']);
+        Route::get('auditoria', [AuditoriaController::class, 'index']);
+        Route::get('auditoria/export', [AuditoriaController::class, 'export']);
         Route::get('fila', [FilaController::class, 'index']);
         Route::get('notificacoes', [NotificacaoController::class, 'index']);
         Route::get('regioes/pending-normalization', [RegiaoNormalizacaoController::class, 'pendingNormalization']);
