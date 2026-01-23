@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BillingController;
+use App\Http\Controllers\Api\V1\BillingCycleController;
 use App\Http\Controllers\Api\V1\BillingInvoiceController;
 use App\Http\Controllers\Api\V1\BillingWebhookController;
 use App\Http\Controllers\Api\V1\DocumentoController;
@@ -41,6 +42,8 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::post('billing/cycle/run', [BillingCycleController::class, 'run']);
+        Route::post('billing/cycle/dunning', [BillingCycleController::class, 'dunning']);
         Route::get('billing/invoices', [BillingInvoiceController::class, 'show']);
         Route::post('billing/invoices/{invoice}/checkout', [BillingInvoiceController::class, 'checkout']);
         Route::post('billing/invoices/{invoice}/mark-paid', [BillingInvoiceController::class, 'markPaid']);
