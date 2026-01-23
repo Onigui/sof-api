@@ -23,6 +23,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureSubscriptionActive;
 
 Route::prefix('v1')->group(function () {
+    Route::post('billing/webhooks/{provider}', [BillingWebhookController::class, 'handle'])
+        ->middleware('throttle:20,1');
+
     Route::post('billing/webhooks/{provider}', [BillingWebhookController::class, 'handle']);
 
 use Illuminate\Support\Facades\Route;

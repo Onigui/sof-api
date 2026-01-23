@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\BillingInvoice;
+use App\Models\BillingPaymentAttempt;
 use App\Models\BillingWebhookEvent;
 use App\Models\EmpresaSubscription;
 use App\Services\Payments\PaymentProviderFactory;
@@ -41,11 +42,15 @@ class BillingWebhookController extends Controller
                         'provider_invoice_id' => $normalized['provider_invoice_id'] ?? null,
                     ]);
 
+                    $this->upsertAttempt($invoice, $provider, $normalized);
+
                     $this->activateSubscription($invoice->empresa_id);
                 } else {
                     $invoice->update([
                         'status' => BillingInvoice::STATUS_FAILED,
                     ]);
+
+                    $this->upsertAttempt($invoice, $provider, $normalized, BillingPaymentAttempt::STATUS_FAILED);
                 }
             }
 
@@ -118,5 +123,31 @@ class BillingWebhookController extends Controller
         }
 
         $subscription->save();
+    }
+
+    private function upsertAttempt(
+        BillingInvoice $invoice,
+        string $provider,
+        array $normalized,
+        string $status = BillingPaymentAttempt::STATUS_CONFIRMED
+    ): void {
+        $providerPaymentId = $normalized['provider_payment_id'] ?? null;
+
+        if (!$providerPaymentId) {
+            return;
+        }
+
+        BillingPaymentAttempt::updateOrCreate(
+            [
+                'billing_invoice_id' => $invoice->id,
+                'provider' => $provider,
+                'provider_payment_id' => $providerPaymentId,
+            ],
+            [
+                'empresa_id' => $invoice->empresa_id,
+                'status' => $status,
+                'checkout_url' => $invoice->provider_checkout_url,
+            ]
+        );
     }
 }
