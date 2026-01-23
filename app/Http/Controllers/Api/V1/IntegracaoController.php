@@ -72,3 +72,4 @@ class IntegracaoController extends Controller
         ], 201);
     }
 }
+
