@@ -22,6 +22,9 @@ class StorePropostaRequest extends FormRequest
         ]);
     }
 
+
+class StorePropostaRequest extends FormRequest
+{
     public function rules(): array
     {
         return [
@@ -37,6 +40,8 @@ class StorePropostaRequest extends FormRequest
                 },
             ],
             'cliente_celular' => ['required', 'string', 'digits_between:10,11'],
+            'cliente_cpf' => ['required', 'string', 'max:20'],
+            'cliente_celular' => ['required', 'string', 'max:20'],
             'cliente_email' => ['nullable', 'email', 'max:255'],
             'produto_id' => ['required', 'integer', 'exists:produtos,id'],
             'loja_id' => ['nullable', 'integer', 'exists:lojas,id'],
@@ -91,5 +96,12 @@ class StorePropostaRequest extends FormRequest
         }
 
         return true;
+    }
+            'veiculo_placa' => ['nullable', 'string', 'max:20'],
+            'veiculo_renavam' => ['nullable', 'string', 'max:30'],
+            'veiculo_descricao' => ['nullable', 'string', 'max:255'],
+            'valor_veiculo' => ['nullable', 'numeric'],
+            'valor_financiado' => ['nullable', 'numeric'],
+        ];
     }
 }

@@ -12,6 +12,14 @@ use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\IntegracaoController;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\LojaLeadController;
+use App\Http\Controllers\Api\V1\DocumentoController;
+use App\Http\Controllers\Api\V1\FilaController;
+use App\Http\Controllers\Api\V1\IntegracaoController;
+use App\Http\Controllers\Api\V1\DocumentoController;
+use App\Http\Controllers\Api\V1\FilaController;
+use App\Http\Controllers\Api\V1\IntegracaoController;
+use App\Http\Controllers\Api\V1\DocumentoController;
+use App\Http\Controllers\Api\V1\FilaController;
 use App\Http\Controllers\Api\V1\NotificacaoController;
 use App\Http\Controllers\Api\V1\PendenciaController;
 use App\Http\Controllers\Api\V1\PropostaController;
@@ -26,6 +34,11 @@ Route::prefix('v1')->group(function () {
     Route::post('billing/webhooks/{provider}', [BillingWebhookController::class, 'handle'])
         ->middleware('throttle:20,1');
 
+    Route::post('billing/webhooks/{provider}', [BillingWebhookController::class, 'handle']);
+
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
 
@@ -72,6 +85,11 @@ Route::prefix('v1')->group(function () {
         Route::post('propostas', [PropostaController::class, 'store']);
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
         Route::get('propostas/{proposta}/precheck', [PropostaController::class, 'precheck']);
+        Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
+        Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
+        Route::get('propostas', [PropostaController::class, 'index']);
+        Route::post('propostas', [PropostaController::class, 'store']);
+        Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
         Route::patch('propostas/{proposta}', [PropostaController::class, 'update']);
         Route::post('propostas/{proposta}/enviar', [PropostaController::class, 'enviar']);
         Route::post('propostas/{proposta}/transferir', [PropostaController::class, 'transferir']);
@@ -81,10 +99,18 @@ Route::prefix('v1')->group(function () {
         Route::get('propostas/{proposta}/documentos', [DocumentoController::class, 'index']);
         Route::post('propostas/{proposta}/documentos', [DocumentoController::class, 'store']);
         Route::post('propostas/{proposta}/documentos/auto-validate', [DocumentoController::class, 'autoValidate']);
+        Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar'])
+            ->middleware(EnsureSubscriptionActive::class);
+        Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar']);
+        Route::get('propostas/{proposta}/documentos', [DocumentoController::class, 'index']);
+        Route::post('propostas/{proposta}/documentos', [DocumentoController::class, 'store']);
         Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
         Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('documentos/{documento}/validar', [DocumentoController::class, 'validar']);
         Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);
         Route::post('pendencias/{pendencia}/reabrir', [PendenciaController::class, 'reabrir']);
+        Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
+        Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
+        Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);
     });
 });

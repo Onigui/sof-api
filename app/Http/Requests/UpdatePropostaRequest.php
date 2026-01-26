@@ -22,6 +22,9 @@ class UpdatePropostaRequest extends FormRequest
         ]);
     }
 
+
+class UpdatePropostaRequest extends FormRequest
+{
     public function rules(): array
     {
         return [
@@ -37,6 +40,8 @@ class UpdatePropostaRequest extends FormRequest
                 },
             ],
             'cliente_celular' => ['sometimes', 'string', 'digits_between:10,11'],
+            'cliente_cpf' => ['sometimes', 'string', 'max:20'],
+            'cliente_celular' => ['sometimes', 'string', 'max:20'],
             'cliente_email' => ['nullable', 'email', 'max:255'],
             'produto_id' => ['sometimes', 'integer', 'exists:produtos,id'],
             'loja_id' => ['nullable', 'integer', 'exists:lojas,id'],
@@ -91,5 +96,12 @@ class UpdatePropostaRequest extends FormRequest
         }
 
         return true;
+    }
+            'veiculo_placa' => ['nullable', 'string', 'max:20'],
+            'veiculo_renavam' => ['nullable', 'string', 'max:30'],
+            'veiculo_descricao' => ['nullable', 'string', 'max:255'],
+            'valor_veiculo' => ['nullable', 'numeric'],
+            'valor_financiado' => ['nullable', 'numeric'],
+        ];
     }
 }

@@ -28,6 +28,7 @@ class User extends Authenticatable
         'loja_id',
         'name',
         'email',
+        'telefone',
         'password',
         'role',
     ];
