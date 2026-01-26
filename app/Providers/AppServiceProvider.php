@@ -16,6 +16,14 @@ use App\Policies\PendenciaPolicy;
 use App\Policies\PropostaPolicy;
 use App\Policies\RegiaoPolicy;
 use App\Policies\RelatorioRunPolicy;
+use App\Policies\RelatorioRunPolicy;
+use App\Policies\DocumentoPolicy;
+use App\Policies\PendenciaPolicy;
+use App\Models\Pendencia;
+use App\Models\Proposta;
+use App\Policies\PendenciaPolicy;
+use App\Models\Proposta;
+use App\Policies\PropostaPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
