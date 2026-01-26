@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Empresa;
 use App\Models\EmpresaSubscription;
+use App\Models\RequirementRule;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -32,6 +33,28 @@ class DatabaseSeeder extends Seeder
             'email' => 'operador@casa-senior.dev',
             'role' => User::ROLE_OPERADOR,
         ]);
+
+        User::factory()->create([
+            'empresa_id' => $empresa->id,
+            'name' => 'Analista Dev',
+            'email' => 'analista@casa-senior.dev',
+            'role' => User::ROLE_ANALISTA,
+        ]);
+
+        User::factory()->create([
+            'empresa_id' => $empresa->id,
+            'name' => 'Gestao Dev',
+            'email' => 'gestao@casa-senior.dev',
+            'role' => User::ROLE_GESTAO,
+        ]);
+
+        RequirementRule::create([
+            'empresa_id' => $empresa->id,
+            'banco_id' => null,
+            'produto_id' => null,
+            'required_fields' => ['cliente_nome', 'cliente_cpf', 'cliente_celular'],
+            'required_docs' => ['CNH', 'COMP_END', 'COMP_RENDA'],
+            'active' => true,
 
         User::factory()->create([
             'empresa_id' => $empresa->id,

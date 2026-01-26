@@ -67,6 +67,10 @@ Route::prefix('v1')->group(function () {
         Route::post('notificacoes/{notification}/ler', [NotificacaoController::class, 'marcarLida']);
         Route::get('subscription', [SubscriptionController::class, 'show']);
         Route::patch('subscription', [SubscriptionController::class, 'update']);
+        Route::get('propostas', [PropostaController::class, 'index']);
+        Route::post('propostas', [PropostaController::class, 'store']);
+        Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
+        Route::get('propostas/{proposta}/precheck', [PropostaController::class, 'precheck']);
         Route::get('relatorios/integradas', [RelatorioController::class, 'integradas']);
         Route::get('relatorios/integradas/export', [RelatorioController::class, 'integradasExport']);
         Route::get('propostas', [PropostaController::class, 'index']);

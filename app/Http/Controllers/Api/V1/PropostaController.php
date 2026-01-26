@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EnviarPropostaRequest;
+use App\Http\Requests\StorePropostaRequest;
+use App\Http\Requests\UpdatePropostaRequest;
+use App\Models\Documento;
+use App\Models\Proposta;
+use App\Models\RequirementRule;
 use App\Http\Requests\StorePropostaRequest;
 use App\Http\Requests\UpdatePropostaRequest;
 use App\Models\Proposta;
@@ -116,6 +122,18 @@ class PropostaController extends Controller
         ]);
     }
 
+    public function enviar(EnviarPropostaRequest $request, Proposta $proposta): JsonResponse
+    {
+        $this->authorize('enviar', $proposta);
+
+        $precheck = $this->buildPrecheck($proposta);
+
+        if (!empty($precheck['errors'])
+            || !empty($precheck['missing_fields'])
+            || !empty($precheck['missing_docs'])) {
+            return response()->json($precheck, 422);
+        }
+
     public function enviar(Request $request, Proposta $proposta): JsonResponse
     {
         $this->authorize('enviar', $proposta);
@@ -137,6 +155,90 @@ class PropostaController extends Controller
         return response()->json([
             'data' => $proposta,
         ]);
+    }
+
+    public function precheck(Proposta $proposta): JsonResponse
+    {
+        $this->authorize('view', $proposta);
+
+        return response()->json($this->buildPrecheck($proposta));
+    }
+
+    private function buildPrecheck(Proposta $proposta): array
+    {
+        $rule = $this->resolveRequirementRule($proposta);
+        $requiredFields = $rule?->required_fields
+            ?? ['cliente_nome', 'cliente_cpf', 'cliente_celular'];
+        $requiredDocs = $rule?->required_docs ?? [];
+
+        $missingFields = [];
+        foreach ($requiredFields as $field) {
+            $value = data_get($proposta, $field);
+            if ($value === null || $value === '') {
+                $missingFields[] = $field;
+            }
+        }
+
+        $docs = $proposta->documentos()
+            ->whereIn('status', [Documento::STATUS_ENVIADO, Documento::STATUS_VALIDO])
+            ->pluck('tipo')
+            ->map(fn ($tipo) => strtoupper((string) $tipo))
+            ->unique()
+            ->values()
+            ->all();
+
+        $missingDocs = [];
+        foreach ($requiredDocs as $doc) {
+            $docUpper = strtoupper((string) $doc);
+            if (!in_array($docUpper, $docs, true)) {
+                $missingDocs[] = $doc;
+            }
+        }
+
+        $errors = [];
+        foreach ($missingFields as $field) {
+            $errors[] = [
+                'code' => 'missing_field',
+                'message' => "Campo obrigatório ausente: {$field}.",
+            ];
+        }
+        foreach ($missingDocs as $doc) {
+            $errors[] = [
+                'code' => 'missing_doc',
+                'message' => "Documento obrigatório ausente: {$doc}.",
+            ];
+        }
+
+        return [
+            'errors' => $errors,
+            'warnings' => [],
+            'missing_fields' => $missingFields,
+            'missing_docs' => $missingDocs,
+        ];
+    }
+
+    private function resolveRequirementRule(Proposta $proposta): ?RequirementRule
+    {
+        return RequirementRule::query()
+            ->where('empresa_id', $proposta->empresa_id)
+            ->where('active', true)
+            ->where(function ($query) use ($proposta) {
+                $query->whereNull('banco_id')
+                    ->orWhere('banco_id', $proposta->banco_id);
+            })
+            ->where(function ($query) use ($proposta) {
+                $query->whereNull('produto_id')
+                    ->orWhere('produto_id', $proposta->produto_id);
+            })
+            ->orderByRaw(
+                'case
+                    when banco_id is not null and produto_id is not null then 1
+                    when banco_id is not null then 2
+                    when produto_id is not null then 3
+                    else 4
+                end'
+            )
+            ->first();
     }
 
     public function transferir(Request $request, Proposta $proposta): JsonResponse
