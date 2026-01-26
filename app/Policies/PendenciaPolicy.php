@@ -50,4 +50,13 @@ class PendenciaPolicy extends BasePolicy
         return $user->role === User::ROLE_GESTAO
             || $user->id === $pendencia->proposta->operador_id;
     }
+
+    public function reabrir(User $user, Pendencia $pendencia): bool
+    {
+        if (!$this->sameEmpresa($user, $pendencia)) {
+            return false;
+        }
+
+        return $user->role === User::ROLE_GESTAO;
+    }
 }

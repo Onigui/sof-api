@@ -111,4 +111,47 @@ class PendenciaController extends Controller
             'data' => $pendencia,
         ]);
     }
+
+    public function reabrir(Request $request, Pendencia $pendencia): JsonResponse
+    {
+        $this->authorize('reabrir', $pendencia);
+
+        $validated = $request->validate([
+            'motivo' => ['required', 'string'],
+        ]);
+
+        if ($pendencia->status === Pendencia::STATUS_ABERTA) {
+            return response()->json([
+                'data' => $pendencia,
+            ]);
+        }
+
+        $user = $request->user();
+        $metadata = $pendencia->metadata ?? [];
+        $metadata['reaberta_em'] = now()->toDateTimeString();
+        $metadata['reaberta_por'] = $user->id;
+        $metadata['motivo'] = $validated['motivo'];
+
+        $pendencia->update([
+            'status' => Pendencia::STATUS_ABERTA,
+            'resolvida_por' => null,
+            'resolvida_em' => null,
+            'metadata' => $metadata,
+        ]);
+
+        Audit::log(
+            'PENDENCIA_REABERTA',
+            'pendencia',
+            (string) $pendencia->id,
+            [
+                'motivo' => $validated['motivo'],
+            ],
+            $user,
+            $request
+        );
+
+        return response()->json([
+            'data' => $pendencia,
+        ]);
+    }
 }

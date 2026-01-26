@@ -74,6 +74,10 @@ Route::prefix('v1')->group(function () {
         Route::get('propostas/{proposta}', [PropostaController::class, 'show']);
         Route::patch('propostas/{proposta}', [PropostaController::class, 'update']);
         Route::post('propostas/{proposta}/enviar', [PropostaController::class, 'enviar']);
+        Route::post('propostas/{proposta}/transferir', [PropostaController::class, 'transferir']);
+        Route::post('propostas/{proposta}/ajustar-status', [PropostaController::class, 'ajustarStatus']);
+        Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar'])
+            ->middleware(EnsureSubscriptionActive::class);
         Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar'])
             ->middleware(EnsureSubscriptionActive::class);
         Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar']);
@@ -82,6 +86,8 @@ Route::prefix('v1')->group(function () {
         Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
         Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('documentos/{documento}/validar', [DocumentoController::class, 'validar']);
+        Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);
+        Route::post('pendencias/{pendencia}/reabrir', [PendenciaController::class, 'reabrir']);
         Route::get('propostas/{proposta}/pendencias', [PendenciaController::class, 'index']);
         Route::post('propostas/{proposta}/pendencias', [PendenciaController::class, 'store']);
         Route::patch('pendencias/{pendencia}/resolver', [PendenciaController::class, 'resolver']);

@@ -61,4 +61,22 @@ class PropostaPolicy extends BasePolicy
             Proposta::STATUS_INTEGRADA,
         ], true);
     }
+
+    public function transferir(User $user, Proposta $proposta): bool
+    {
+        if (!$this->sameEmpresa($user, $proposta)) {
+            return false;
+        }
+
+        return $user->role === User::ROLE_GESTAO;
+    }
+
+    public function ajustarStatus(User $user, Proposta $proposta): bool
+    {
+        if (!$this->sameEmpresa($user, $proposta)) {
+            return false;
+        }
+
+        return $user->role === User::ROLE_GESTAO;
+    }
 }

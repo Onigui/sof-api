@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePropostaRequest;
 use App\Http\Requests\UpdatePropostaRequest;
 use App\Models\Proposta;
+use App\Models\User;
 use App\Services\Audit;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PropostaController extends Controller
 {
@@ -135,5 +137,163 @@ class PropostaController extends Controller
         return response()->json([
             'data' => $proposta,
         ]);
+    }
+
+    public function transferir(Request $request, Proposta $proposta): JsonResponse
+    {
+        $this->authorize('transferir', $proposta);
+
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'novo_operador_id' => [
+                'required',
+                'integer',
+                Rule::exists('users', 'id')
+                    ->where('empresa_id', $user->empresa_id)
+                    ->where('role', User::ROLE_OPERADOR),
+            ],
+            'motivo' => ['required', 'string'],
+        ]);
+
+        $operadorAnterior = $proposta->operador_id;
+        $proposta->update([
+            'operador_id' => $validated['novo_operador_id'],
+        ]);
+
+        Audit::log(
+            'PROPOSTA_TRANSFERIDA',
+            'proposta',
+            (string) $proposta->id,
+            [
+                'from' => $operadorAnterior,
+                'to' => $validated['novo_operador_id'],
+                'motivo' => $validated['motivo'],
+            ],
+            $user,
+            $request
+        );
+
+        return response()->json([
+            'data' => $proposta,
+        ]);
+    }
+
+    public function ajustarStatus(Request $request, Proposta $proposta): JsonResponse
+    {
+        $this->authorize('ajustarStatus', $proposta);
+
+        $validated = $request->validate([
+            'status_novo' => ['required', 'string'],
+            'motivo' => ['required', 'string'],
+        ]);
+
+        $novoStatus = $validated['status_novo'];
+        $statusAtual = $proposta->status;
+
+        if ($novoStatus === Proposta::STATUS_INTEGRADA) {
+            return response()->json([
+                'message' => 'Status INTEGRADA só pode ser definido pela integração.',
+            ], 422);
+        }
+
+        $allowUnintegrate = filter_var(env('ALLOW_ADMIN_UNINTEGRATE', false), FILTER_VALIDATE_BOOL);
+        if ($statusAtual === Proposta::STATUS_INTEGRADA && !$allowUnintegrate) {
+            return response()->json([
+                'message' => 'Propostas integradas não podem ter o status ajustado.',
+            ], 422);
+        }
+
+        $allowed = $this->allowedStatusTransitions($statusAtual, $allowUnintegrate);
+        if (!in_array($novoStatus, $allowed, true)) {
+            return response()->json([
+                'message' => 'Transição de status não permitida.',
+            ], 422);
+        }
+
+        $proposta->update([
+            'status' => $novoStatus,
+        ]);
+
+        $metadata = [
+            'from' => $statusAtual,
+            'to' => $novoStatus,
+            'motivo' => $validated['motivo'],
+        ];
+
+        if ($statusAtual === Proposta::STATUS_INTEGRADA && $allowUnintegrate) {
+            $metadata['override'] = true;
+            $metadata['warning'] = 'ADMIN_UNINTEGRATE';
+        }
+
+        Audit::log(
+            'PROPOSTA_STATUS_AJUSTADO',
+            'proposta',
+            (string) $proposta->id,
+            $metadata,
+            $request->user(),
+            $request
+        );
+
+        return response()->json([
+            'data' => $proposta,
+        ]);
+    }
+
+    private function allowedStatusTransitions(string $statusAtual, bool $allowUnintegrate): array
+    {
+        $transitions = [
+            Proposta::STATUS_RASCUNHO => [
+                Proposta::STATUS_ANALISE_PROMOTORA,
+                Proposta::STATUS_CANCELADA,
+            ],
+            Proposta::STATUS_ANALISE_PROMOTORA => [
+                Proposta::STATUS_ANALISE_BANCO,
+                Proposta::STATUS_APROVADA,
+                Proposta::STATUS_RECUSADA,
+                Proposta::STATUS_FORMALIZACAO,
+                Proposta::STATUS_ANALISE_PAGAMENTO,
+                Proposta::STATUS_CANCELADA,
+            ],
+            Proposta::STATUS_ANALISE_BANCO => [
+                Proposta::STATUS_APROVADA,
+                Proposta::STATUS_RECUSADA,
+                Proposta::STATUS_FORMALIZACAO,
+                Proposta::STATUS_ANALISE_PAGAMENTO,
+                Proposta::STATUS_CANCELADA,
+            ],
+            Proposta::STATUS_APROVADA => [
+                Proposta::STATUS_FORMALIZACAO,
+                Proposta::STATUS_ANALISE_PAGAMENTO,
+                Proposta::STATUS_CANCELADA,
+            ],
+            Proposta::STATUS_FORMALIZACAO => [
+                Proposta::STATUS_ANALISE_PAGAMENTO,
+                Proposta::STATUS_APROVADA,
+                Proposta::STATUS_RECUSADA,
+                Proposta::STATUS_CANCELADA,
+            ],
+            Proposta::STATUS_ANALISE_PAGAMENTO => [
+                Proposta::STATUS_APROVADA,
+                Proposta::STATUS_RECUSADA,
+                Proposta::STATUS_CANCELADA,
+            ],
+            Proposta::STATUS_RECUSADA => [
+                Proposta::STATUS_CANCELADA,
+            ],
+            Proposta::STATUS_CANCELADA => [],
+            Proposta::STATUS_INTEGRADA => $allowUnintegrate ? [
+                Proposta::STATUS_RASCUNHO,
+                Proposta::STATUS_ANALISE_PROMOTORA,
+                Proposta::STATUS_ANALISE_BANCO,
+                Proposta::STATUS_APROVADA,
+                Proposta::STATUS_RECUSADA,
+                Proposta::STATUS_FORMALIZACAO,
+                Proposta::STATUS_ANALISE_PAGAMENTO,
+                Proposta::STATUS_CANCELADA,
+            ] : [],
+        ];
+
+        return $transitions[$statusAtual] ?? [];
     }
 }

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->dateTime('criada_em');
             $table->foreignId('resolvida_por')->nullable()->constrained('users')->nullOnDelete();
             $table->dateTime('resolvida_em')->nullable();
+            $table->json('metadata')->nullable();
             $table->timestamps();
         });
     }

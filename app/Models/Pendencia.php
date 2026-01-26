@@ -25,6 +25,7 @@ class Pendencia extends Model
         'criada_em',
         'resolvida_por',
         'resolvida_em',
+        'metadata',
     ];
 
     protected function casts(): array
@@ -32,6 +33,7 @@ class Pendencia extends Model
         return [
             'criada_em' => 'datetime',
             'resolvida_em' => 'datetime',
+            'metadata' => 'array',
         ];
     }
 
