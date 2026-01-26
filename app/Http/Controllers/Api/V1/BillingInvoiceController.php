@@ -45,6 +45,7 @@ class BillingInvoiceController extends Controller
         $provider = $request->input('provider')
             ?? $invoice->provider
             ?? (env('MERCADOPAGO_ACCESS_TOKEN') ? 'mercadopago' : 'manual');
+        $provider = $invoice->provider ?? 'manual';
         $gateway = $factory->make($provider);
         $checkout = $gateway->createCheckout($invoice);
 
