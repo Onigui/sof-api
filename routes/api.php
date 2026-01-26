@@ -82,6 +82,9 @@ Route::prefix('v1')->group(function () {
         Route::post('propostas/{proposta}/ajustar-status', [PropostaController::class, 'ajustarStatus']);
         Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar'])
             ->middleware(EnsureSubscriptionActive::class);
+        Route::get('propostas/{proposta}/documentos', [DocumentoController::class, 'index']);
+        Route::post('propostas/{proposta}/documentos', [DocumentoController::class, 'store']);
+        Route::post('propostas/{proposta}/documentos/auto-validate', [DocumentoController::class, 'autoValidate']);
         Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar'])
             ->middleware(EnsureSubscriptionActive::class);
         Route::post('propostas/{proposta}/integrar', [IntegracaoController::class, 'integrar']);

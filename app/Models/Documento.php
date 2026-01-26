@@ -28,12 +28,15 @@ class Documento extends Model
         'status',
         'motivo_invalidez',
         'substitui_documento_id',
+        'validado_por',
+        'validado_em',
     ];
 
     protected function casts(): array
     {
         return [
             'enviado_em' => 'datetime',
+            'validado_em' => 'datetime',
         ];
     }
 
@@ -45,6 +48,11 @@ class Documento extends Model
     public function enviadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'enviado_por');
+    }
+
+    public function validadoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validado_por');
     }
 
     public function substituiDocumento(): BelongsTo

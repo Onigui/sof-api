@@ -79,4 +79,13 @@ class PropostaPolicy extends BasePolicy
 
         return $user->role === User::ROLE_GESTAO;
     }
+
+    public function autoValidateDocumentos(User $user, Proposta $proposta): bool
+    {
+        if (!$this->sameEmpresa($user, $proposta)) {
+            return false;
+        }
+
+        return in_array($user->role, [User::ROLE_ANALISTA, User::ROLE_GESTAO], true);
+    }
 }
