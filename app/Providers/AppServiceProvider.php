@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use App\Models\AuditLog;
+use App\Models\DetranQuery;
 use App\Models\Documento;
 use App\Models\Pendencia;
 use App\Models\Proposta;
 use App\Models\Regiao;
 use App\Models\RelatorioRun;
 use App\Policies\AuditPolicy;
+use App\Policies\DetranQueryPolicy;
 use App\Policies\DocumentoPolicy;
 use App\Policies\PendenciaPolicy;
 use App\Policies\PropostaPolicy;
@@ -41,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(AuditLog::class, AuditPolicy::class);
+        Gate::policy(DetranQuery::class, DetranQueryPolicy::class);
         Gate::policy(Documento::class, DocumentoPolicy::class);
         Gate::policy(Pendencia::class, PendenciaPolicy::class);
         Gate::policy(Proposta::class, PropostaPolicy::class);
