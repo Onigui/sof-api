@@ -87,6 +87,7 @@ class PropostaController extends Controller
 
         return response()->json([
             'data' => $proposta->load(['documentos', 'pendencias']),
+            'data' => $proposta,
         ]);
     }
 
@@ -108,6 +109,7 @@ class PropostaController extends Controller
             $request->user(),
             $request
         );
+        $proposta->update($request->validated());
 
         return response()->json([
             'data' => $proposta,
