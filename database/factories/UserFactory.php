@@ -36,6 +36,7 @@ class UserFactory extends Factory
                 User::ROLE_OPERADOR,
                 User::ROLE_ANALISTA,
                 User::ROLE_GESTAO,
+                User::ROLE_LOJA,
             ]),
         ];
     }

@@ -16,6 +16,7 @@ class User extends Authenticatable
     public const ROLE_OPERADOR = 'OPERADOR';
     public const ROLE_ANALISTA = 'ANALISTA';
     public const ROLE_GESTAO = 'GESTAO';
+    public const ROLE_LOJA = 'LOJA';
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +25,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'empresa_id',
+        'loja_id',
         'name',
         'email',
         'telefone',
@@ -52,5 +54,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function loja()
+    {
+        return $this->belongsTo(Loja::class);
     }
 }
