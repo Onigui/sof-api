@@ -9,6 +9,9 @@ use App\Http\Requests\UpdatePropostaRequest;
 use App\Models\Documento;
 use App\Models\Proposta;
 use App\Models\RequirementRule;
+use App\Http\Requests\StorePropostaRequest;
+use App\Http\Requests\UpdatePropostaRequest;
+use App\Models\Proposta;
 use App\Models\User;
 use App\Services\Audit;
 use Carbon\Carbon;
@@ -90,6 +93,7 @@ class PropostaController extends Controller
 
         return response()->json([
             'data' => $proposta->load(['documentos', 'pendencias']),
+            'data' => $proposta,
         ]);
     }
 
@@ -111,6 +115,7 @@ class PropostaController extends Controller
             $request->user(),
             $request
         );
+        $proposta->update($request->validated());
 
         return response()->json([
             'data' => $proposta,
@@ -128,6 +133,10 @@ class PropostaController extends Controller
             || !empty($precheck['missing_docs'])) {
             return response()->json($precheck, 422);
         }
+
+    public function enviar(Request $request, Proposta $proposta): JsonResponse
+    {
+        $this->authorize('enviar', $proposta);
 
         $proposta->update([
             'status' => Proposta::STATUS_ANALISE_PROMOTORA,

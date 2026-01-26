@@ -57,6 +57,7 @@ class RelatorioFechamentoService
         $basePath = "empresas/{$empresaId}/relatorios/{$data}";
 
         $aprovadas = $this->gerarTipo(
+        $this->gerarTipo(
             $empresaId,
             $data,
             RelatorioRun::TIPO_APROVADAS,
@@ -66,6 +67,7 @@ class RelatorioFechamentoService
         );
 
         $integradas = $this->gerarTipo(
+        $this->gerarTipo(
             $empresaId,
             $data,
             RelatorioRun::TIPO_INTEGRADAS,
@@ -100,6 +102,11 @@ class RelatorioFechamentoService
                 null,
                 $createdBy
             );
+    ): void {
+        try {
+            Excel::store($export, $path);
+
+            $this->registrarResultado($empresaId, $data, $tipo, $path, RelatorioRun::STATUS_GERADO, null, $createdBy);
         } catch (\Throwable $exception) {
             Log::error('Falha ao gerar relatorio', [
                 'empresa_id' => $empresaId,
@@ -109,6 +116,7 @@ class RelatorioFechamentoService
             ]);
 
             return $this->registrarResultado(
+            $this->registrarResultado(
                 $empresaId,
                 $data,
                 $tipo,
@@ -130,6 +138,8 @@ class RelatorioFechamentoService
         ?int $createdBy
     ): RelatorioRun {
         return RelatorioRun::updateOrCreate(
+    ): void {
+        RelatorioRun::updateOrCreate(
             [
                 'empresa_id' => $empresaId,
                 'data_ref' => $data,
